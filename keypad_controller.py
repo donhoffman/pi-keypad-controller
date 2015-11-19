@@ -6,11 +6,13 @@ import logging
 import matrix_keypad
 import door_latch
 
+KEYPAD_IDS = ['inside', 'outside']
+
 def main():
     keypad1 = matrix_keypad.Keypad(0x20, 0)
     keypad2 = matrix_keypad.Keypad(0x20, 1)
-    latch1 = door_latch.Latch('Inside')
-    latch2 = door_latch.Latch('Outside')
+    latch1 = door_latch.Latch(KEYPAD_IDS[0])
+    latch2 = door_latch.Latch(KEYPAD_IDS[1])
 
     while True:
         ch = None

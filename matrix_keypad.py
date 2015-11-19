@@ -28,8 +28,7 @@ class Keypad:
     # get a keystroke from the keypad
     def getch(self):
         for col in range(0, 4):
-            self.i2c.write_byte_data(self._i2c_addr, self.OLATA + self._port,
-                                     self.KEYCOL[col])  # write 0 to lowest four bits
+            self.i2c.write_byte_data(self._i2c_addr, self.OLATA + self._port, self.KEYCOL[col])
             key = self.i2c.read_byte_data(self._i2c_addr, self.GPIOA + self._port) >> 4
             if key != 0b1111:
                 row = self.DECODE[key]
