@@ -22,7 +22,7 @@ class Latch:
         self._time_end_lockout = None
         self._invalid_count = 0
 
-
+    # noinspection PyMethodMayBeStatic
     def _db_connect(self):
         db_name = environ.get('DB_BASE_PATH', './') + 'keypad.db'
         return sqlite3.connect(db_name, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
@@ -69,7 +69,7 @@ class Latch:
             if not row:
                 logging.error('Unknown code entered.')
                 if ++self._invalid_count > self.LOCKOUT_THRESHOLD:
-                    self._invalid_count = 0;
+                    self._invalid_count = 0
                     self._time_end_lockout = time.now() + self.LOCKOUT_TIMEOUT
                 return False
 
@@ -87,6 +87,7 @@ class Latch:
             if not enabled:
                 logging.error("Attempt to use disabled code for user %s", name)
                 return False
+            # noinspection PyUnusedLocal
             use_timeout = row[1]
             not_before = row[2]
             not_after = row[3]
@@ -112,6 +113,6 @@ class Latch:
 
 if __name__ == '__main__':
     test_code = '12345#'
-    latch = Latch('inside')
+    latch = Latch('inside', 0)
     for ch in test_code:
         latch.input(ch)

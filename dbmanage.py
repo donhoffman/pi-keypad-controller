@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-from os import environ
 import argparse
 import sqlite3
+from os import environ
 import datetime
 
 KEYPAD_IDS = ['inside', 'outside']

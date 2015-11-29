@@ -1,13 +1,12 @@
 import smbus
 import time
 
-#init
 IODIRA = 0x00   # I/O direction register base address
 PULUPA = 0x0C   # PullUp enable register base address
 GPIOA = 0x12    # GPIO pin register base address
 OLATA = 0x14    # Output Latch register base address
 
-ADDR = 0x21     # Address of xxxxxx
+ADDR = 0x21     # Address on 12c bus
 PORT = 1        # Which port, 0 or 1?
 
 DEFAULT_ON_TIMEOUT = 3

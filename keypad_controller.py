@@ -22,12 +22,10 @@ def main():
     latch1 = door_latch.Latch(KEYPAD_IDS[1], 1)
 
     while True:
-        ch = None
         ch = keypad0.getch()
         if ch:
             latch0.input(ch)
 
-        ch = None
         ch = keypad1.getch()
         if ch:
             latch1.input(ch)

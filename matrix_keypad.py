@@ -34,7 +34,7 @@ class Keypad:
                     time.sleep(0.01)
                 return self.KEYCODE[col][row]
         #No keypress
-        return
+        return None
 
 
     # initialize the keypad class
