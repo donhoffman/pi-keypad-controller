@@ -1,10 +1,11 @@
-import time
-import sqlite3
-import logging
 import datetime
+import logging
+import sqlite3
+import time
 from os import environ
 
 import relays
+
 
 class Latch:
 

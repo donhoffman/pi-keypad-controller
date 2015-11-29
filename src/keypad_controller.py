@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-from os import environ
-import time
 import logging
+import time
+from os import environ
 
-import matrix_keypad
 import door_latch
+import matrix_keypad
 
 KEYPAD_IDS = ['inside', 'outside']
 LOG_BASE_PATH = environ.get('LOG_BASE_PATH', './')
