@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 
+from os import environ
 import argparse
 import sqlite3
+import datetime
 
-DB_NAME = "./keypad.db"
 KEYPAD_IDS = ['inside', 'outside']
+
+def db_connect():
+    db_name = environ.get('DB_BASE_PATH', './') + 'keypad.db'
+    return sqlite3.connect(db_name, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
 
 def main(cmd_args):
     if cmd_args.command == 'create':
@@ -12,16 +17,15 @@ def main(cmd_args):
     elif cmd_args.command == 'add' and cmd_args.cmdargs[0] and cmd_args.cmdargs[0] == 'user':
         add_user(cmd_args.cmdargs[1], cmd_args.cmdargs[2])
     elif cmd_args.command == 'add' and cmd_args.cmdargs[0] and cmd_args.cmdargs[0] == 'permissions':
-        keypads = cmd_args.cmdargs[2:]
-        add_permissions(cmd_args.cmdargs[1], keypads)
+        add_permissions(cmd_args.cmdargs[1], cmd_args.cmdargs[2])
     else:
         print 'Unknown command - %s' % cmd_args.command
 
 def create_cmd():
-    print 'Creating database at %s...' % DB_NAME
+    print 'Creating database at %s...' % (environ.get('DB_BASE_PATH', './') + 'keypad.db')
     conn = None
     try:
-        conn = sqlite3.connect(DB_NAME)
+        conn = db_connect()
         c = conn.cursor()
         # noinspection SqlNoDataSourceInspection
         c.execute('''
@@ -35,6 +39,9 @@ def create_cmd():
             name        TEXT NOT NULL,
             keypad_id   TEXT NOT NULL,
             enabled     INTEGER DEFAULT 1,
+            use_timeout INTEGER DEFAULT 0,
+            not_before  timestamp,
+            not_after   timestamp,
             PRIMARY KEY (name, keypad_id)
           )
         ''')
@@ -52,7 +59,7 @@ def add_user(name, code, force=True):
     print 'Adding user %s...' % name
     conn = None
     try:
-        conn = sqlite3.connect(DB_NAME)
+        conn = db_connect()
         c = conn.cursor()
         if force:
             c.execute('INSERT OR REPLACE INTO users VALUES (?, ?)', (name, code))
@@ -66,12 +73,13 @@ def add_user(name, code, force=True):
             conn.close()
     print 'Done.'
 
-def add_permissions(name, keypads, force=True):
+def add_permissions(name, keypad_id, not_before=None, not_after=None, force=True):
     name = name.lower()
+    keypad_id = keypad_id.lower()
     print 'Adding permissions for %s:' % name
     conn = None
     try:
-        conn = sqlite3.connect(DB_NAME)
+        conn = db_connect()
         c = conn.cursor()
 
         c.execute('SELECT COUNT(*) FROM users WHERE name=?', (name,))
@@ -80,17 +88,15 @@ def add_permissions(name, keypads, force=True):
             print 'Error - user %s not known. Permissions not added.' % name
             return
 
-        for k in keypads:
-            k = k.lower()
-            if k not in KEYPAD_IDS:
-                print "Error - Invalid keypad ID \'%s\'.  Permissions not added." % k
-                return
-            print '\t%s' % k
-            if force:
-                c.execute('INSERT OR REPLACE INTO permissions VALUES (?, ?, ?)', (name, k, 1))
-            else:
-                c.execute('INSERT INTO permissions VALUES (?, ?, ?)', (name, k, 1))
-            conn.commit()
+        if keypad_id not in KEYPAD_IDS:
+            print "Error - Invalid keypad ID \'%s\'.  Permissions not added." % keypad_id
+            return
+        record = (name, keypad_id, 1, 0, not_before, not_after)
+        if force:
+            c.execute('INSERT OR REPLACE INTO permissions VALUES (?, ?, ?, ?, ?)', record)
+        else:
+            c.execute('INSERT INTO permissions VALUES (?, ?, ?, ?, ?)', record)
+        conn.commit()
     except sqlite3.Error, e:
         print 'Error - %s' % e.args[0]
     finally:

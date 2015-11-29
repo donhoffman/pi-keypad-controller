@@ -1,5 +1,3 @@
-
-
 import smbus
 import time
 
