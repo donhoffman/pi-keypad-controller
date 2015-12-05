@@ -41,6 +41,9 @@ class Latch:
             self._digits += c
             return
 
+        if self._digits == '':
+            logging.info('Empty code entered')
+            return
         code = int(self._digits)
         self._digits = ''
         if c == '#':
@@ -58,6 +61,7 @@ class Latch:
                 logging.error("Code entered during lockout.")
                 return False
             self._time_end_lockout = None
+            logging.info('Lockout period ended.')
 
         conn = None
         try:
@@ -69,9 +73,11 @@ class Latch:
             row = c.fetchone()
             if not row:
                 logging.error('Unknown code entered.')
-                if ++self._invalid_count > self.LOCKOUT_THRESHOLD:
+                self._invalid_count += 1
+                if self._invalid_count > self.LOCKOUT_THRESHOLD:
+                    logging.info('Too may attempts.  Lockout for %s seconds', int(self.LOCKOUT_TIMEOUT))
                     self._invalid_count = 0
-                    self._time_end_lockout = time.now() + self.LOCKOUT_TIMEOUT
+                    self._time_end_lockout = time.time() + self.LOCKOUT_TIMEOUT
                 return False
 
             #Note:  we don't lock out on permission issues
@@ -99,6 +105,7 @@ class Latch:
                 logging.error("Attempt to use expired code for user %s", name)
                 return False
             logging.info("Valid code entered by user %s", name)
+            self._invalid_count = 0
             return True
         except sqlite3.Error as e:
             logging.error("Database error: %s", e)
