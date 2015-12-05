@@ -93,9 +93,9 @@ def add_permissions(name, keypad_id, not_before=None, not_after=None, force=True
             return
         record = (name, keypad_id, 1, 0, not_before, not_after)
         if force:
-            c.execute('INSERT OR REPLACE INTO permissions VALUES (?, ?, ?, ?, ?)', record)
+            c.execute('INSERT OR REPLACE INTO permissions VALUES (?, ?, ?, ?, ?, ?)', record)
         else:
-            c.execute('INSERT INTO permissions VALUES (?, ?, ?, ?, ?)', record)
+            c.execute('INSERT INTO permissions VALUES (?, ?, ?, ?, ?, ?)', record)
         conn.commit()
     except sqlite3.Error, e:
         print 'Error - %s' % e.args[0]
