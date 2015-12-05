@@ -16,7 +16,7 @@ class Latch:
 
     def __init__(self, latch_id, latch_index):
         self._logger = logging.getLogger(__name__)
-        self._latch_id = unicode(latch_id)
+        self._latch_id = unicode(latch_id).lower()
         self._latch_index = int(latch_index)
         self._digits = ''
         self._time_lastchar = 0
@@ -82,7 +82,7 @@ class Latch:
                 FROM permissions WHERE name=? AND keypad_id=?''', (name, self._latch_id))
             row = c.fetchone()
             if not row:
-                logging.error('User \'%s\' has no permissions.')
+                logging.error('User \'%s\' has no permissions.', name)
                 return False
             enabled = bool(row[0])
             if not enabled:
@@ -113,7 +113,10 @@ class Latch:
 
 
 if __name__ == '__main__':
+    import logging
+    logging.basicConfig(filename='./keypad.log', level=logging.DEBUG,
+                        format='%(asctime)s | %(levelname)s | %(message)s')
     test_code = '12345#'
-    latch = Latch('inside', 0)
+    latch = Latch('Outside', 0)
     for ch in test_code:
         latch.input(ch)
